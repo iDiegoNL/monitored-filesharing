@@ -9,6 +9,14 @@
         <!-- Validation Errors -->
         <x-auth-validation-errors class="mb-4" :errors="$errors" />
 
+        <x-anchor class="w-full mb-4" :href="route('socialite.redirectToSteam')">
+            {{ __('Register with Steam') }}
+        </x-anchor>
+
+        <x-separator>
+            {{ __('Or manually register') }}
+        </x-separator>
+
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
