@@ -17,6 +17,10 @@ class LogPageVisit
      */
     public function handle(Request $request, Closure $next)
     {
+        if (Auth::guest()) {
+            return $next($request);
+        }
+
         activity()
             ->causedBy($request->user())
             ->withProperties([
