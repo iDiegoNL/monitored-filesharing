@@ -24,12 +24,21 @@ class ActivityResource extends Resource
 
     protected static ?string $pluralLabel = 'Activity';
 
+    protected static ?int $navigationSort = 999;
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\Grid::make()
+                    ->columns(1)
+                    ->schema([
+                        Forms\Components\TextInput::make('event'),
+                    ]),
                 Forms\Components\Textarea::make('description'),
                 Forms\Components\KeyValue::make('properties'),
+                Forms\Components\BelongsToSelect::make('causerId')
+                    ->relationship('causer', 'name'),
             ]);
     }
 
@@ -40,13 +49,17 @@ class ActivityResource extends Resource
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('event')
+                    ->searchable()
+                    ->limit(50),
+                Tables\Columns\TextColumn::make('causer.name')
+                    ->searchable()
+                    ->limit(50),
                 Tables\Columns\TextColumn::make('subject.name')
                     ->label('Subject')
-                    ->hidden(fn (Component $livewire) => $livewire instanceof ActivitiesRelationManager)
+                    ->hidden(fn(Component $livewire) => $livewire instanceof ActivitiesRelationManager)
                     ->getStateUsing(function (Activity $record) {
-                        if (! $record->subject || ! $record->subject instanceof IsActivitySubject) {
+                        if (!$record->subject || !$record->subject instanceof IsActivitySubject) {
                             return new HtmlString('&mdash;');
                         }
 
@@ -56,14 +69,14 @@ class ActivityResource extends Resource
                         return $subject->getActivitySubjectDescription($record);
                     })
                     ->url(function (Activity $record) {
-                        if (! $record->subject || ! $record->subject instanceof IsActivitySubject) {
+                        if (!$record->subject || !$record->subject instanceof IsActivitySubject) {
                             return;
                         }
 
                         /** @var class-string<\Filament\Resources\Resource> */
                         $resource = ResourceFinder::find($record->subject::class);
 
-                        if (! $resource) {
+                        if (!$resource) {
                             return;
                         }
 
@@ -76,7 +89,7 @@ class ActivityResource extends Resource
             ])
             ->filters([
                 Tables\Filters\Filter::make('Has Subject')
-                    ->query(fn (Builder $query) => $query->has('subject')),
+                    ->query(fn(Builder $query) => $query->has('subject')),
             ])
             ->bulkActions([])
             ->defaultSort('created_at', 'DESC');
