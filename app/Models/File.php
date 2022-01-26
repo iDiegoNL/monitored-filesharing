@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\HasShareIdTrait;
 use Illuminate\Database\Eloquent\Model;
 
 class File extends Model
 {
+    use HasShareIdTrait;
+
     protected $fillable = [
         'name',
         'description',
@@ -14,6 +17,6 @@ class File extends Model
     ];
 
     protected $casts = [
-        'permitted_group_ids' => 'array',
+        'permitted_group_ids' => 'array'
     ];
 }
