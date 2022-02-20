@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
 use Vinkla\Hashids\Facades\Hashids;
 
 trait HasShareIdTrait
@@ -26,5 +27,10 @@ trait HasShareIdTrait
 
         // Strip everything but numbers, and return it
         return (int)preg_replace('~\D~', '', $uniqid);
+    }
+
+    public function scopeWhereShareKey(Builder $query, string $shareKey): Builder
+    {
+        return $query->where('share_id', Hashids::decode($shareKey));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Filament\Models\Contracts\FilamentUser;
+use Http;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -49,5 +50,16 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
     public function canAccessFilament(): bool
     {
         return $this->is_admin || (str_ends_with($this->email, '@truckersmp.com') && $this->hasVerifiedEmail());
+    }
+
+    public function getTruckersMpAccount(): ?array
+    {
+        $response = Http::get("https://api.truckersmp.com/v2/player/{$this->steam_id}");
+
+        if ($response->failed() || $response->json()['error']) {
+            return null;
+        }
+
+        return $response->json()['response'];
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -21,4 +22,8 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-require __DIR__.'/auth.php';
+Route::prefix('access')->name('access.')->group(function () {
+    Route::get('file/{shareKey}', [FileController::class, 'accessFile'])->name('file');
+});
+
+require __DIR__ . '/auth.php';
